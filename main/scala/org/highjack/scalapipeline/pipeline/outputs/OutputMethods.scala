@@ -33,9 +33,15 @@ object OutputMethods {
     /**
       * InputStream will be available at encrypted url retrieved from POST(scala-ms-ppl/getOutputURL) {pipeline_id=XXX, output_name=XXX}
       */
-    def EXPOSE_SOURCE_STREAM[K](pipelineId:String, outputElementName:String, source:Source[K,_], take:Int): Future[_] = {
+    def EXPOSE_SOURCE_STREAM[K](pipelineId:String, outputElementName:String, outputEndpointURL:String, source:Source[K,_], take:Int): Future[_] = {
         logger.info("<<<<<<< ---------     in exposeSourceStream  ------------")
-        AkkaRestServer.exposeOutputAkkaStream(pipelineId, outputElementName, source.map(k=>ByteString(k.toString.getBytes)))
+        AkkaRestServer.exposeOutputAkkaStream(pipelineId, outputElementName, outputEndpointURL,  source.map(k=>ByteString(k.toString.getBytes)))
+        Future.successful(Done)
+    }
+
+    def WEBSOCKET(source:Source[_,_]): Future[_] = {
+        source.map(k=>ByteString(k.toString.getBytes))
+
         Future.successful(Done)
     }
 

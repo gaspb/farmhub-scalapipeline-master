@@ -88,7 +88,7 @@ object RestService {
         restartSource
     }
     def akkaByteStream(url:String, port:String, headers:Seq[HttpHeader])(implicit ec: ExecutionContext): Source[ByteString, Any] = {
-
+        println("----Requesting2")
         val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
             Http().outgoingConnection(url)
 
@@ -109,7 +109,7 @@ object RestService {
                 resp.status match {
                     // if status is OK, then getting instance of Source[ByteString, NotUsed]
                     // to consume data from Twitter server
-                    case StatusCodes.OK => resp.entity.withoutSizeLimit().dataBytes
+                    case StatusCodes.OK => {   println("----Received response");resp.entity.withoutSizeLimit().dataBytes}
                     // if not OK, then logging error and returning failed Source to try
                     // to restart the stream and issue new HTTP request
                     case code =>

@@ -13,9 +13,14 @@ object PerfUtil {
     var timer:Stopwatch = _
     def initTimer(): Unit = {
         timer = Stopwatch.createStarted()
+        logger.info("------ timer started");
     }
 
     def stopAndLog(): Unit = {
+        if(timer==null) {
+            logger.error("Timer wasn't started")
+            return
+        }
         timer.stop()
         timer.elapsed().toMillis
         logger.info("------ Stream completion took  "+timer.elapsed().toMillis+" milliseconds")

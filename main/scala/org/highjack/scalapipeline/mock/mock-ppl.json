@@ -1,0 +1,104 @@
+
+
+[{
+    "TODOS" :  ["TCP_RECEIVE___CUSTOM_PARSE_PYTHON_FUNC___REDUCE_NOISE___AGGREGATE_MEAN___WEBSOCKET",
+                "",
+                "",
+                ""]
+},
+    {
+        "pipelineId" : "READ_BIG_TXT__COUNT__GET_INCR_TOP_20",
+        "endpoint" : {
+            "name" : "mock_edp",
+            "endpointType" : "AKKA_HTTP_BYTESTRING_READ",
+            "address" : "http://norvig.com/big.txt",
+            "port" : 8080,
+            "kafkaInputKey" : "",
+            "options" : {}
+        },
+        "trigger" : {
+            "name" : "tg_1",
+            "outputEndpointURL" : "tg1",
+            "ttype" : "SIMPLE_RUN"
+        },
+        "branches" : [{
+            "elements": [
+                {
+                    "elementType": "TRANSFORMATION",
+                    "name": "parseStr",
+                    "ttype": "BYTESTRING_TO_STRING",
+                    "opt": {}
+                },{
+                    "elementType": "TRANSFORMATION",
+                    "name": "countWords",
+                    "ttype": "WORD_OCCURENCE_COUNT",
+                    "opt": {"excludeCommonWords" : "true",
+                        "top"            : "20"}
+                },{
+                    "elementType": "TRANSFORMATION",
+                    "name": "tail",
+                    "ttype": "STREAM_TAIL",
+                    "opt": {}
+                },{
+                    "elementType": "OUTPUT",
+                    "name": "out",
+                    "outputEndpointURL" : "myFile",
+                    "otype": "TO_DOWNLOADABLE_FILE"
+                }
+            ],
+            "branchId" :  0,
+            "parentBranchId" : 0,
+            "startIdxAtParent": 0
+        }]
+    },
+
+
+    {
+        "pipelineId" : "READ_SHAKESPEAR_AS_DOWNLOADABLE",
+        "endpoint" : {
+            "name" : "mock_edp",
+            "endpointType" : "AKKA_HTTP_BYTESTRING_READ",
+            "address" : "http://norvig.com/big.txt",
+            "port" : 8080,
+            "kafkaInputKey" : "",
+            "options" : {}
+        },
+        "trigger" : {
+            "name" : "tg_1",
+            "outputEndpointURL" : "tg1",
+            "ttype" : "SIMPLE_RUN"
+        },
+        "branches" : [{
+            "elements": [
+                {
+                    "elementType": "TRANSFORMATION",
+                    "name": "parseStr",
+                    "ttype": "BYTESTRING_TO_STRING",
+                    "opt": {}
+                },{
+                    "elementType": "TRANSFORMATION",
+                    "name": "countWords",
+                    "ttype": "WORD_OCCURENCE_COUNT",
+                    "opt": {"excludeCommonWords" : "true",
+                        "top"            : "20"}
+                },{
+                    "elementType": "TRANSFORMATION",
+                    "name": "tail",
+                    "ttype": "STREAM_TAIL",
+                    "opt": {}
+                },{
+                    "elementType": "OUTPUT",
+                    "name": "out",
+                    "outputEndpointURL" : "myFile",
+                    "otype": "TO_DOWNLOADABLE_FILE"
+                }
+            ],
+            "branchId" :  0,
+            "parentBranchId" : 0,
+            "startIdxAtParent": 0
+        }]
+    }
+
+
+
+    ]

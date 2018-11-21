@@ -1,8 +1,6 @@
 package org.highjack.scalapipeline.mock
 
-/**
-  * Created by High Jack on 19/10/2018.
-  */
+
 sealed class ConditionalApplicative[T] private(val value: T) { // if condition class wrapper
 class ElseApplicative(value: T, elseCondition: Boolean) extends ConditionalApplicative[T](value) {
     // else condition class wrapper extends ConditionalApplicative to avoid double wrapping

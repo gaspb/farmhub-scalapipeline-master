@@ -10,7 +10,7 @@ import akka.http.scaladsl.server.{Directives, RequestContext, Route}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl._
 import akka.util.ByteString
-import org.highjack.scalapipeline.utils.StringEncryptionUtil
+import org.highjack.scalapipeline.utils.{PerfUtil, StringEncryptionUtil}
 import org.slf4j.{Logger, LoggerFactory}
 
 
@@ -24,6 +24,8 @@ import org.slf4j.{Logger, LoggerFactory}
         var exposedInputsURLMap :collection.mutable.ListMap[String,String] = collection.mutable.ListMap.empty[String,String]
         var exposedInputsSourceMap :collection.mutable.ListMap[String,Source[ByteString,_]] = collection.mutable.ListMap.empty[String,Source[ByteString,_]]
         var exposedOutputsSourceMap :collection.mutable.ListMap[String,Source[ByteString,_]] = collection.mutable.ListMap.empty[String,Source[ByteString,_]]
+        var exposedTriggerURLMap :collection.mutable.ListMap[String,String] = collection.mutable.ListMap.empty[String,String]
+        var exposedTriggerFuncMap :collection.mutable.ListMap[String,() => RunnableGraph[Any]] = collection.mutable.ListMap.empty[String,() => RunnableGraph[Any]]
 
         def runnablePipelineMap :collection.mutable.ListMap[String,RunnableGraph[Any]] =  collection.mutable.ListMap.empty[String,RunnableGraph[Any]]
 
@@ -36,14 +38,13 @@ import org.slf4j.{Logger, LoggerFactory}
         /**
           * GET entities to the url retrieved from POST:getOutputURL {pipelineId:XXX, inputElementName:XXX}
           */
-        def exposeOutputAkkaStream(pipelineId:String, outputElementName:String, source:Source[ByteString,_]): Unit = {
+        def exposeOutputAkkaStream(pipelineId:String, outputElementName:String, outputEndpointURL:String, source:Source[ByteString,_]): Unit = {
 
             val key = pipelineId+" // "+outputElementName
-            val encryptedURL : String = StringEncryptionUtil.encrypt(key)
 
-            exposedOutputsURLMap += ((key,encryptedURL))
+            exposedOutputsURLMap += ((key,outputEndpointURL))
             exposedOutputsSourceMap += ((key,source))
-            logger.info("Exposing stream output "+exposedOutputsURLMap.size+" for pipeline "+pipelineId+" and output "+outputElementName+" : url=/"+encryptedURL)
+            logger.info("Exposing stream output "+exposedOutputsURLMap.size+" for pipeline "+pipelineId+" and output "+outputElementName+" : url=/"+outputEndpointURL)
 
 
         }
@@ -74,57 +75,16 @@ import org.slf4j.{Logger, LoggerFactory}
 
         }
 
+        def exposeTrigger(pipelineId:String, triggerName:String, outputEndpointURL:String,  run: () => RunnableGraph[Any]): Unit = {
+            val key = pipelineId+" // "+triggerName
 
-     /*   implicit val materializer = ActorMaterializer()
-        implicit val system = ActorSystem()
-        implicit val executionContext =system.dispatcher
+            exposedTriggerURLMap += ((key,outputEndpointURL))
+            exposedTriggerFuncMap += ((key,run))
+            logger.info("Exposing stream trigger "+exposedTriggerURLMap.size+" for pipeline "+pipelineId+" and trigger "+triggerName+" : url=/"+outputEndpointURL)
 
-        case class DataToUpload[T](key: String, value: /*T*/AnyRef)
 
-        def dataToUpload[T](): Source[DataToUpload[T], NotUsed] =
-        // This could even be a lazy/infinite stream. For this example we have a finite one:
-            Source(List(
-                DataToUpload[T]("key1",1),
-                DataToUpload[T]("key2",2),
-                DataToUpload[T]("key3",3)
-            ))
 
-        val poolClientFlow =
-            Http().cachedHostConnectionPool[DataToUpload[Any]]("akka.io")//TODO
-
-        def createUploadRequest(dataToUpload: DataToUpload): Future[(HttpRequest, FileToUpload)] = {
-            val bodyPart =
-            // fromPath will use FileIO.fromPath to stream the data from the file directly
-                FormData.BodyPart.fromPath(dataToUpload.key, ContentTypes.`application/octet-stream`, dataToUpload.value)
-
-            val body = FormData(bodyPart) // only one file per upload
-            Marshal(body).to[RequestEntity].map { entity => // use marshalling to create multipart/formdata entity
-                // build the request and annotate it with the original metadata
-                HttpRequest(method = HttpMethods.POST, uri = "http://example.com/uploader", entity = entity) -> fileToUpload
-            }
         }
-
-        // you need to supply the list of files to upload as a Source[...]
-        filesToUpload()
-            // The stream will "pull out" these requests when capacity is available.
-            // When that is the case we create one request concurrently
-            // (the pipeline will still allow multiple requests running at the same time)
-            .mapAsync(1)(createUploadRequest)
-            // then dispatch the request to the connection pool
-            .via(poolClientFlow)
-            // report each response
-            // Note: responses will not come in in the same order as requests. The requests will be run on one of the
-            // multiple pooled connections and may thus "overtake" each other.
-            .runForeach {
-            case (Success(response), fileToUpload) =>
-                // TODO: also check for response status code
-                println(s"Result for file: $fileToUpload was successful: $response")
-                response.discardEntityBytes() // don't forget this
-            case (Failure(ex), fileToUpload) =>
-                println(s"Uploading file $fileToUpload failed with $ex")
-        }*/
-
-
 
         //ESXPOSE STREAM JSON => NEED PROTOCOL
        /* val response = HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, input))

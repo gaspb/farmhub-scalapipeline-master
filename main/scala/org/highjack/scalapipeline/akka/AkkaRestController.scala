@@ -1,19 +1,14 @@
 package org.highjack.scalapipeline.akka
 
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.util.Base64
-import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source, StreamConverters}
 import akka.util.ByteString
 import com.google.common.io.BaseEncoding
-import org.highjack.scalapipeline.pipeline.{JsonPipelineVM, PipelineModel, PipelineModelJSONParser}
+import org.highjack.scalapipeline.pipeline.{JsonPipelineVM, PipelineModelJSONParser}
 import org.highjack.scalapipeline.scalaThreadExecutor.ScalaThreadExecutor
-import org.highjack.scalapipeline.utils.Java8Util
+import org.highjack.scalapipeline.utils.{Java8Util, PerfUtil}
 import org.slf4j.{Logger, LoggerFactory}
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation._
@@ -23,7 +18,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
 import scala.concurrent.Future
-import scala.concurrent.duration.FiniteDuration
 @Controller //?
 @RestController
 @RequestMapping(Array("/api/test"))
@@ -33,7 +27,6 @@ class AkkaRestController {
     implicit val system = ActorSystem()
     implicit val materializer = ActorMaterializer()
     implicit val executionContext = system.dispatcher
-
 
     @RequestMapping(value = Array("/ppl"), method = Array(RequestMethod.POST), consumes = Array(MediaType.APPLICATION_JSON_VALUE))
     def postPipeline(@RequestBody jsonPipeline: JsonPipelineVM): ResponseEntity[Any]= {
@@ -48,7 +41,7 @@ class AkkaRestController {
 
     @GetMapping(path = Array("/out"),  produces = Array(MediaType.TEXT_PLAIN_VALUE))
         @ResponseBody
-        def getOutputURL3(@RequestParam pipelineId: String, @RequestParam outputName: String): String= {
+        def getOutputURL(@RequestParam pipelineId: String, @RequestParam outputName: String): String= {
             logger.info("Received call for url /api/out, retriving from map with length " + AkkaRestServer.exposedOutputsURLMap.size + "  ")
             val str:String = Java8Util.get(pipelineId + " // " + outputName, AkkaRestServer.exposedOutputsURLMap)
             str
@@ -76,25 +69,19 @@ class AkkaRestController {
 
         //   val sink = StreamConverters.asInputStream()
         val flux : Flux[ByteString] = Flux.fromStream(source.runWith(StreamConverters.asJavaStream[ByteString]()))
-        logger.info("Received call for proxy " + key + " , exposing source ")
         flux
     }
 
-    @GetMapping(path = Array("/proxy/run/{url}"), produces = Array(MediaType.TEXT_PLAIN_VALUE))
+    @GetMapping(path = Array("/proxy/run/{url}"), produces = Array(MediaType.APPLICATION_STREAM_JSON_VALUE))
     @ResponseBody
-    def proxyRunJSON(@PathVariable("url") url: String): Flux[ByteString]  = {
-        logger.info("Received call for proxy " + url + "  , lgth="+AkkaRestServer.exposedOutputsSourceMap.size)
-        val key = Java8Util.getKeyFromValue(url, AkkaRestServer.exposedOutputsURLMap)
+    def proxyRunJSON(@PathVariable("url") url: String): String  = {
+        logger.info("Received call for proxy " + url + "  , lgth="+AkkaRestServer.exposedTriggerFuncMap.size)
+        val key = Java8Util.getKeyFromValue(url, AkkaRestServer.exposedTriggerURLMap)
         logger.info("Retrieved key " + key )
-        val source : Source[ByteString, _]= Java8Util.get[Source[ByteString, _]](key, AkkaRestServer.exposedOutputsSourceMap)
-        val runnable:RunnableGraph[Future[ByteString]]  = source.toMat(Sink.head)(Keep.right)
-       val future : Future[ByteString] = runnable.run()
-        future.foreach(println)
-        val source2 = Source.fromFuture(future)
-        //   val sink = StreamConverters.asInputStream()
-        val flux : Flux[ByteString] = Flux.fromStream(source2.runWith(StreamConverters.asJavaStream[ByteString]()))
-        logger.info("Received call for proxy " + key + " , exposing source ")
-        flux
+        val runnable : () => RunnableGraph[Any]= Java8Util.get[() => RunnableGraph[Any]](key, AkkaRestServer.exposedTriggerFuncMap)
+        PerfUtil.initTimer()
+        Future {runnable().run()}
+        "200"
     }
 
 

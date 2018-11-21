@@ -31,7 +31,7 @@ object StringEncryptionUtil {
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv)
             val encrypted = cipher.doFinal(URLEncoder.encode(value, "UTF-8").getBytes)
             System.out.println("encrypted string: " + Base64.encodeBase64String(encrypted))
-            return Base64.encodeBase64String(encrypted);
+            return Base64.encodeBase64String(encrypted).replace("/","");
         } catch {
             case ex: Exception =>
                 ex.printStackTrace()

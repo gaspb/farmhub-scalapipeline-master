@@ -30,7 +30,7 @@ case class LogicBuilder(ppl:PipelineModel) {
 
 
     private var flow: Flow[ByteString, _, NotUsed]= _
-    private var runnableGraph:RunnableGraph[_] = _
+    private var getPplGraphs : () => RunnableGraph[Any] = _
 
     private var result : Any = _
 
@@ -46,35 +46,42 @@ case class LogicBuilder(ppl:PipelineModel) {
 
     def buildEndpoint() : LogicBuilder = {
         val endpoint:EndpointElement = ppl.endpoint
-        runnableGraph = endpointToRunnableGraph(endpoint, flow)
+        this.getPplGraphs = () => endpointToRunnableGraph(endpoint, flow)
         this
     }
 
-    def setUpTrigger() : LogicBuilder = {
+        def setUpTrigger() : LogicBuilder = {
         val trigger:TriggerElement = ppl.trigger
-        val futureSource : Source[Future[_], _] = triggerToFuture(trigger)
+        val futureSource : Source[Any, _] = triggerToFuture(trigger, this.getPplGraphs)
         futureSource.runWith(Sink.foreach(m => {
-
+            logger.info("Future completed with "+m)
+            doTrigger(m)
+            /*if(m.isCompleted) {
+                logger.info("Future is already completed")
+                doTrigger(m.value)
+            }
             //TODO if m.isCompleted or onComplete
+            m.onComplete(s=> {
+                logger.info("Future completed with "+s)
+                doTrigger(s)
 
-
-
-
-
-            logger.info("Recieved trigger call, running graph and starting timer")
-            PerfUtil.initTimer()
-            runnableGraph.async.run()
-
-
-            logger.info("Result is of type "+result.getClass.getName)
-            logger.info("result is "+result)
-
-
-
-
+            })*/
 
         }))
         this
+    }
+
+    private def doTrigger(s:Any): Unit = {
+        logger.info("Recieved trigger call, running graph and starting timer")
+        PerfUtil.initTimer()
+        this.getPplGraphs().async.run()
+
+
+        logger.info("Result is of type "+result.getClass.getName)
+        logger.info("result is "+result)
+
+
+
     }
 
 }
@@ -85,12 +92,13 @@ private object LogicBuilder {
 
     def oneBranchFlow(branch:PipelineBranch): Flow[ByteString, Any, NotUsed] = {
         val flow:Flow[ByteString,Any,NotUsed] = Flow[ByteString]
-        branch.elements.foldLeft(flow)((prevFlow, elem)=> {
+        branch.elements.toList.sortWith(_.position < _.position).foldLeft(flow)((prevFlow, elem)=> {
             logger.info("Folding elem : "+elem.name)
             prevFlow
                 .via(elemToFlow(elem))
         })
     }
+
 
     def elemToFlow(elem:PipelineElement): Flow[Any, Any, NotUsed] = {
         logger.info("elem to flow : "+elem.name)
@@ -102,9 +110,9 @@ private object LogicBuilder {
         EndpointToRunnableGraph(elem, logicFlow).get()
     }
 
-    def triggerToFuture(elem:TriggerElement): Source[Future[_], _] = {
+    def triggerToFuture(elem:TriggerElement, run: () => RunnableGraph[Any]): Source[Any, _] = {
         logger.info("adding trigger to future : "+elem.name)
-        TriggerToFutureSource(elem).trigger()
+        TriggerToFutureSource(elem).trigger(run)
     }
 
 

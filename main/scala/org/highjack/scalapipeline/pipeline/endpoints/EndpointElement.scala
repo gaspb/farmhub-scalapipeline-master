@@ -11,7 +11,7 @@ case class EndpointElement(name:String,  endpointType : EndpointTypeEnum, addres
     def kafkaInputTopic : String = endpointType.toString // only one topic per event-type, even across multiple nodes in the pipeline (or in any pipeline?)
     def byteThreshold : Long = 5000000
     def msThreshold : Long = 30000
-
+    override def position:Int = -1
 
 
   /*  def run(): Source[_,_] = {

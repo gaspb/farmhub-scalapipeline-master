@@ -5,7 +5,9 @@ object OutputTypeEnum extends Enumeration {
     val TO_DOWNLOADABLE_FILE,
         TO_REST_ENDPOINT,
         TO_KAFKA,
-        TO_AKKA_REMOTE_TCP
+        TO_AKKA_REMOTE_TCP,
+        WEBSOCKET,//+-== kafka
+        MOCK_TCP
 
          = Value
     def valueOf(name: String) = OutputTypeEnum.values.find(_.toString == name)

@@ -5,6 +5,7 @@ import org.highjack.scalapipeline.pipeline.PipelineElementTypeEnum.PipelineEleme
 trait PipelineElement {
     def elemType : PipelineElementTypeEnum
     def name : String
+    def position : Int
 
 /*
     var applyToFlowValue : Boolean = false

@@ -48,8 +48,13 @@ spring:
                     brokers: 192.168.99.100
                     zk-nodes: 192.168.99.100
             bindings:
-                output:
-                    destination: topic-jhipster
+                messageChannel:
+                    destination: scala-ms-out
+                    content-type: application/json
+                subscribableChannel:
+                    destination: scala-ms-in
+                    content-type: application/json
+
   #  data:
   #      cassandra:
   #          contactPoints: 192.168.99.100

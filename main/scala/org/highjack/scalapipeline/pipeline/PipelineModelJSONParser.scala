@@ -31,6 +31,7 @@ object PipelineModelJSONParser {
     implicit val elEnumRds  : Reads[PipelineElementTypeEnum.Value] = enumReads(PipelineElementTypeEnum)
 
     implicit val tsElemRds : Reads[TransformationElement] = (
+        (__ \ "position").read[Int] ~
         (__ \ "name").read[String] ~
             (__ \ "ttype").read[TransformationTypeEnum.Value]/*((s:JsValue)=> s.validate[String].map(s=>TransformationTypeEnum.valueOf(s).get))*/ ~
             (__ \ "opt").read[Map[String,String]]
@@ -44,6 +45,7 @@ object PipelineModelJSONParser {
             (__ \ "options").read[Map[String,String]]
         )(EndpointElement)
     implicit val outElemRds : Reads[OutputElement] = (
+        (__ \ "position").read[Int] ~
         (__ \ "name").read[String] ~
             (__ \ "outputEndpointURL").read[String] ~
             (__ \ "otype").read[OutputTypeEnum.Value]/*((s:JsValue)=> s.validate[String].map(s=>OutputTypeEnum.valueOf(s).get))*/
@@ -59,10 +61,10 @@ object PipelineModelJSONParser {
 
 
     implicit val branchRds : Reads[PipelineBranch] = (
+        (__ \ "position").read[Int] ~
         (__ \ "elements").read[Set[PipelineElement]] ~
             (__ \ "branchId").read[Long] ~
-            (__ \ "parentBranchId").read[Long] ~
-            (__ \ "startIdxAtParent").read[Int]
+            (__ \ "parentBranchId").read[Long]
         )(PipelineBranch)
 
     implicit val pplRds : Reads[PipelineModel] = (

@@ -19,9 +19,9 @@ object EndpointTypeEnum extends Enumeration {
         AKKA_HTTP_STREAM_LISTEN,
         AKKA_HTTP_BYTESTRING_READ,
         KAFKA_SUBSCRIBE, //option : compress/decompress bytes (alpakka)
-        KAFKA_COMITTABLE_SUBSCRIBE //data shall be rewritten (tranformed) to kafka //even in case of failer, output is "at-least-once"
+        KAFKA_COMITTABLE_SUBSCRIBE, //data shall be rewritten (tranformed) to kafka //even in case of failer, output is "at-least-once"
 
-
+        MOCK_TCP
     /*  FINITE_BYTE_EVENT_DRIVEN,
       FINITE_JSON_EVENT_DRIVEN,
       INFINITE_BYTE_EVENT_DRIVEN,           +event driven from input (the "condition"/branch dividing element) => move to a new PipelineElement

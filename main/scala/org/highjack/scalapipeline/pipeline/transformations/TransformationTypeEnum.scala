@@ -24,8 +24,9 @@ object TransformationTypeEnum extends Enumeration {
         STRING_TO_BYTESTRING,
         BYTESTRING_TO_STRING,
         ANY_TO_BYTESTRING,
+        ANY_TO_JSON,
 
-
+        MOCK_LOG,//mock
 
 
         //CUSTOM

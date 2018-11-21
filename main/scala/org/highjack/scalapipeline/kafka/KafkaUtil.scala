@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords, Kafka
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.highjack.scalapipeline.utils.Java8Util.toJavaConsumer
 import org.highjack.scalapipeline.kafka.KafkaConstants._
+import org.highjack.scalapipeline.utils.PerfUtil
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -22,9 +23,8 @@ object KafkaUtil {
     def createConsumer() : KafkaConsumer[String, String] = {
         val props = new Properties()
         props.put("bootstrap.servers", KAFKA_BROKER)
-        props.put("key.deserializer", STRING_DESERIALIZER)
+        props.put("key.serializer", STRING_SERIALIZER)
         props.put("value.deserializer", STRING_DESERIALIZER)
-        props.put("group.id", "test" /*TODO*/)
         new KafkaConsumer[String, String](props)
     }
 
@@ -41,7 +41,7 @@ object KafkaUtil {
                   .mapConcat[ConsumerRecord[String,String]](t=> t.asScala.to)
                   .map((t:ConsumerRecord[String,String])=>ByteString(t.value()))
           .via(flow)
-          .to(Sink.ignore)
+          .to(Sink.onComplete( s => PerfUtil.stopAndLog()))
         runnable
 
     }

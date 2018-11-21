@@ -1,7 +1,11 @@
 package org.highjack.scalapipeline.mock
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorSystem
+import akka.stream.scaladsl.{Flow, Source, Tcp}
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Supervision}
+import akka.util.ByteString
 import org.highjack.scalapipeline.akka._
 import org.highjack.scalapipeline.pipeline._
 import org.highjack.scalapipeline.pipeline.endpoints.{EndpointElement, EndpointTypeEnum}
@@ -10,7 +14,11 @@ import org.highjack.scalapipeline.pipeline.transformations.{TransformationElemen
 import org.highjack.scalapipeline.pipeline.trigger.{TriggerElement, TriggerTypeEnum}
 import org.highjack.scalapipeline.scalaThreadExecutor.ScalaThreadExecutor
 import org.slf4j.{Logger, LoggerFactory}
+
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.FiniteDuration._
 import scala.concurrent.{ExecutionContext, TimeoutException}
+import scala.util.Random
 import scala.util.control.NonFatal
 
 class MockMain2 {
@@ -51,18 +59,34 @@ class MockMain2 {
 
         val getJsonPropertyTreansfo:TransformationElement = TransformationElement("mock_tf_str", 2, false, 1, true, TransformationTypeEnum.PARSE_JSON_OBJECT, Map.empty)
 */
-        val parseToString:TransformationElement = TransformationElement("mock_parseToString", TransformationTypeEnum.BYTESTRING_TO_STRING, Map.empty)
-        val countWords:TransformationElement = TransformationElement("mock_countWords",  TransformationTypeEnum.WORD_OCCURENCE_COUNT, Map(("excludeCommonWords", "true")))
-        val tail:TransformationElement = TransformationElement("mock_countWords",  TransformationTypeEnum.STREAM_TAIL, Map.empty)
-        val outputElement:OutputElement = OutputElement("out1","to_rest", OutputTypeEnum.TO_DOWNLOADABLE_FILE)
+        val parseToString:TransformationElement = TransformationElement(1,"mock_parseToString", TransformationTypeEnum.BYTESTRING_TO_STRING, Map.empty)
+        val countWords:TransformationElement = TransformationElement(2,"mock_countWords",  TransformationTypeEnum.WORD_OCCURENCE_COUNT, Map(("excludeCommonWords", "true")))
+        val tail:TransformationElement = TransformationElement(3,"mock_countWords",  TransformationTypeEnum.STREAM_TAIL, Map.empty)
+        val outputElement:OutputElement = OutputElement(4,"out1","to_rest", OutputTypeEnum.TO_DOWNLOADABLE_FILE)
 
         val trigger : TriggerElement = TriggerElement("mock_deadtrigger",  "some", TriggerTypeEnum.SIMPLE_RUN )
 
 
-        val branch : PipelineBranch = PipelineBranch(Set[PipelineElement](parseToString,  countWords,tail, outputElement), 1, 0,0)
+        val branch : PipelineBranch = PipelineBranch(0,Set[PipelineElement](parseToString,  countWords,tail, outputElement), 1, 0)
         val ppl : PipelineModel = PipelineModel(Set[PipelineBranch](branch), "mock_ppl", endpointElement, trigger)
         ppl
     }
+
+
+    def fakeStringByteSource(): Source[ByteString, _] = {
+        val interval : FiniteDuration =   FiniteDuration(2000, TimeUnit.MILLISECONDS)
+        val base : String = "somebytestring"
+        Source.tick(interval,interval,ByteString(base))
+    }
+
+
+    def echoTCP_WRITE(): Flow[ByteString, ByteString, _] = {
+      TCPManager.outputToTCPFlow(TCPManager.gtwHost, TCPManager.gtwPort) //echo
+    }
+/*    def echoTCP_READ(): Flow[ByteString, ByteString, _] = {
+        TCPManager.registerHostFlow(TCPManager.host, TCPManager.port) //echo
+    }*/
+
 
     def mockPplJson(): PipelineModel = {
         val json = """
@@ -70,9 +94,9 @@ class MockMain2 {
     "pipelineId" : "ppl1",
     "endpoint" : {
       "name" : "mock_edp",
-      "endpointType" : "AKKA_HTTP_BYTESTRING_READ",
-      "address" : "http://norvig.com/big.txt",
-      "port" : 8080,
+      "endpointType" : "MOCK_TCP",
+      "address" : "",
+      "port" : 0,
       "kafkaInputKey" : "",
       "options" : {}
     },
@@ -84,26 +108,15 @@ class MockMain2 {
     "branches" : [{
         "elements": [
             {
-                "elementType": "TRANSFORMATION",
-                "name": "parseStr",
-                "ttype": "BYTESTRING_TO_STRING",
-                "opt": {}
-            },{
-                 "elementType": "TRANSFORMATION",
-                 "name": "countWords",
-                 "ttype": "WORD_OCCURENCE_COUNT",
-                 "opt": {"excludeCommonWords" : "true",
-                            "top"            : "20"}
-            },{
                   "elementType": "TRANSFORMATION",
-                  "name": "tail",
-                  "ttype": "STREAM_TAIL",
+                  "name": "log",
+                  "ttype": "MOCK_LOG",
                   "opt": {}
              },{
                 "elementType": "OUTPUT",
                  "name": "out",
-                 "outputEndpointURL" : "myFile",
-                 "otype": "TO_DOWNLOADABLE_FILE"
+                 "outputEndpointURL" : "",
+                 "otype": "MOCK_TCP"
             }
         ],
         "branchId" :  0,

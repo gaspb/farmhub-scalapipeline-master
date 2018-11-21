@@ -7,6 +7,6 @@ import org.highjack.scalapipeline.pipeline.{PipelineElement, PipelineElementType
 
 case class TriggerElement(name:String, outputEndpointURL : String, ttype: TriggerTypeEnum) extends PipelineElement {
     override def elemType : PipelineElementTypeEnum = PipelineElementTypeEnum.OUTPUT
-
+    override def position:Int = -1
 
 }

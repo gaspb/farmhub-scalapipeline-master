@@ -10,7 +10,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
 object StringSourceToStatsMethods {
 
-    val uniqueBuckets = 400 //max number of elements to keep in memory
+    val uniqueBuckets = 500 //max number of elements to keep in memory
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
     def STRING_SOURCE_TO_WORD_OCCURRENCE_STAT_SOURCE(excludeCommonWords:Boolean, take:Option[Long]) : Flow[String, Map[String, Long], NotUsed]  = {
        var lgth = 0
