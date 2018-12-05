@@ -5,7 +5,7 @@ import org.highjack.scalapipeline.pipeline.PipelineElementTypeEnum.PipelineEleme
 import org.highjack.scalapipeline.pipeline.endpoints.EndpointTypeEnum.EndpointTypeEnum
 import org.highjack.scalapipeline.pipeline.{PipelineElement, PipelineElementTypeEnum}
 
-case class EndpointElement(name:String,  endpointType : EndpointTypeEnum, address : String, port:Int, kafkaInputKey : String, options:Map[String,String]) extends PipelineElement {
+case class EndpointElement(name:String,  endpointType : EndpointTypeEnum, address : Option[String], port:Option[Int], kafkaInputKey : Option[String], options:Option[Map[String,String]]) extends PipelineElement {
     override def elemType : PipelineElementTypeEnum = PipelineElementTypeEnum.ENDPOINT
 
     def kafkaInputTopic : String = endpointType.toString // only one topic per event-type, even across multiple nodes in the pipeline (or in any pipeline?)

@@ -39,20 +39,20 @@ object PipelineModelJSONParser {
     implicit val endpElemRds : Reads[EndpointElement] = (
         (__ \ "name").read[String] ~
             (__ \ "endpointType").read[EndpointTypeEnum.Value]/*((s:JsValue)=> s.validate[String].map(s=>EndpointTypeEnum.valueOf(s).get))*/ ~
-            (__ \ "address").read[String] ~
-            (__ \ "port").read[Int] ~
-            (__ \ "kafkaInputKey").read[String] ~
-            (__ \ "options").read[Map[String,String]]
+            (__ \ "address").readNullable[String] ~
+            (__ \ "port").readNullable[Int] ~
+            (__ \ "kafkaInputKey").readNullable[String] ~
+            (__ \ "options").readNullable[Map[String,String]]
         )(EndpointElement)
     implicit val outElemRds : Reads[OutputElement] = (
         (__ \ "position").read[Int] ~
         (__ \ "name").read[String] ~
-            (__ \ "outputEndpointURL").read[String] ~
+            (__ \ "outputEndpointURL").readNullable[String] ~
             (__ \ "otype").read[OutputTypeEnum.Value]/*((s:JsValue)=> s.validate[String].map(s=>OutputTypeEnum.valueOf(s).get))*/
         )(OutputElement)
     implicit val trigElemRds : Reads[TriggerElement] = (
         (__ \ "name").read[String] ~
-            (__ \ "outputEndpointURL").read[String] ~
+            (__ \ "outputEndpointURL").readNullable[String] ~
             (__ \ "ttype").read[TriggerTypeEnum.Value]/*((s:JsValue)=> s.validate[String].map(s=>TriggerTypeEnum.valueOf(s).get))*/
         )(TriggerElement)
 

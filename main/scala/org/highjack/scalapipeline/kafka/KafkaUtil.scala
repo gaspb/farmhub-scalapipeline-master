@@ -3,6 +3,7 @@ package org.highjack.scalapipeline.kafka
 import java.util.{Collections, Properties}
 
 import akka.Done
+import akka.actor.ActorRef
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
 import akka.util.ByteString
 import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords, KafkaConsumer}

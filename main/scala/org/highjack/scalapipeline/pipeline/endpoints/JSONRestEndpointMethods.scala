@@ -26,13 +26,27 @@ object JSONRestEndpointMethods {
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
 
     def TEXT_DOCUMENT_URL_TO_RUNNABLE(url:String, port:Int, flow:Flow[ByteString,_,_]) : RunnableGraph[Any] = { //TODO port
-        val source = RestService.akkaByteDocumentStream(url, Seq.empty[HttpHeader], FiniteDuration.apply(3, "seconds"), FiniteDuration.apply(40, "seconds"))
+    /*    val source = RestService.akkaByteDocumentStream(url, Seq.empty[HttpHeader], FiniteDuration.apply(3, "seconds"), FiniteDuration.apply(40, "seconds"))
         akkaStreamHandlerDOC.parseByteSourceToClassSource(source,  FiniteDuration.apply(30, "seconds"), true, Option(ByteString("\n"))).async
               /*.map(t=>{logger.info("-------------------CHUNK--------------------"+t);t})*/
           .map(ByteString.apply).async
           .via(flow).async
           .to(Sink.onComplete( s => PerfUtil.stopAndLog()))
+*/
 
+
+        val source = RestService.akkaByteDocumentStream(url, Seq.empty[HttpHeader], FiniteDuration.apply(3, "seconds"), FiniteDuration.apply(40, "seconds"))
+
+        akkaStreamHandlerDOC.parseByteSourceToClassSource(source,  FiniteDuration.apply(30, "seconds"), true, Option(ByteString("\n"))).async
+
+        .map(ByteString.apply).async
+            .via(flow).async.map(s=>{
+            logger.info("got "+s)
+            s
+        }).to(Sink.onComplete( s => {
+            logger.info("debug--ended")
+            PerfUtil.stopAndLog()
+        }))
 
 
     }

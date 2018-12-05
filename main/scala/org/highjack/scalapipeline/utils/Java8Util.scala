@@ -2,7 +2,7 @@ package org.highjack.scalapipeline.utils
 
 import java.util.function.Consumer
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
 import akka.stream.scaladsl.Source
 import org.slf4j.{Logger, LoggerFactory}
@@ -35,16 +35,21 @@ object Java8Util {
 
     }
 
-/*//Materialize source
-    def debugSource(source:Source[ByteString,_]) : Int ={
-        var int:Int = 0
+    def pushToActor(actorRef:ActorRef,message:String): Unit = {
+        logger.info("pushing to actor ref ")
+        actorRef ! message
+    }
 
-        source.runWith(Sink.fold(ByteString.empty)((prev, curr)=> {
-            logger.info("DEBUG--returning "+curr)
-            int+=1
-            curr
-        }))
-        int
+    /*//Materialize source
+        def debugSource(source:Source[ByteString,_]) : Int ={
+            var int:Int = 0
 
-    }*/
+            source.runWith(Sink.fold(ByteString.empty)((prev, curr)=> {
+                logger.info("DEBUG--returning "+curr)
+                int+=1
+                curr
+            }))
+            int
+
+        }*/
 }

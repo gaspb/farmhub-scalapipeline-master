@@ -1,36 +1,26 @@
 package org.highjack.scalapipeline.web.rest.kafka;
 
-import akka.kafka.javadsl.Consumer;
-import akka.stream.OverflowStrategy;
-import akka.stream.javadsl.Keep;
-import akka.stream.javadsl.Sink;
-import akka.stream.scaladsl.Source;
-import akka.stream.scaladsl.SourceQueueWithComplete;
-import akka.stream.scaladsl.StreamConverters;
-import akka.util.ByteString;
+import akka.actor.ActorRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import scala.Function1;
 
 @Service
 public class ConsumerService {
 
     private final Logger log = LoggerFactory.getLogger(ConsumerService.class);
 
-    static public SubscribableChannel consumerChannel;
-    public static Source<String, ?> activeSource;
-    public static Source<String, ?> activeSourceQueue;
+    private SubscribableChannel channel;
+    public static ActorRef sourceActor;
+    public static Function1<String,?> handler;
 
     public ConsumerService(ConsumerChannel consumerChannel) {
-
-       /* activeSource = Source.queue(5, OverflowStrategy.dropHead());
+        this.channel = consumerChannel.subscribableChannel();
+    }
+/* activeSource = Source.queue(5, OverflowStrategy.dropHead());
 */
       /*  Consumer.
         ConsumerService.consumerChannel = consumerChannel.subscribableChannel();
@@ -40,15 +30,16 @@ public class ConsumerService {
                 log.info("Received message:  {} "+ message.getPayload());
             }
         });*/
-    }
+
 
     @StreamListener(ConsumerChannel.CHANNEL)
     public void consume(MessageModel message) {
-        log.info("Received message:  {} ", message.getMessage());
-        /*if (ConsumerService.activeSource!=null) {
-            log.info("Passing to queue ");
-            ConsumerService.activeSource.offer(message.getMessage());
-        }*/
+        log.info("-Recieved message:  {} ",message.getMessage());
+
+        if (ConsumerService.handler!=null) {
+            log.info("-flow is not null");
+            handler.apply(message.getMessage());
+        }
 
     }
 

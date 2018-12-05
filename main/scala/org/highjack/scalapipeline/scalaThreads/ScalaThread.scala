@@ -1,25 +1,12 @@
 package org.highjack.scalapipeline.scalaThreads
 
-import java.util.concurrent.Executors
 import java.util.{Collections, Properties}
 
 import akka.actor.ActorSystem
-import akka.kafka.ConsumerMessage.CommittableOffsetBatch
-import akka.kafka.scaladsl.Consumer.DrainingControl
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Supervision}
-import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
-import akka.util.ByteString
-import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords, KafkaConsumer}
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.highjack.scalapipeline.pipeline._
-import org.highjack.scalapipeline.pipeline.transformations.{StringSourceToMapTransformationElement, TransformationElement, TransformationExecutor}
-import org.highjack.scalapipeline.utils.Java8Util._
 import org.slf4j.{Logger, LoggerFactory}
-import org.apache.kafka.common.serialization.{Deserializer, StringDeserializer}
-import org.highjack.scalapipeline.pipeline.endpoints.{EndpointElement, EndpointExecutor, EndpointTypeEnum}
-import org.highjack.scalapipeline.pipeline.outputs.{OutputElement, OutputExecutor}
-import org.springframework.beans.factory.annotation.Value
-import play.api.libs.json.{Json, Reads}
 
 import scala.concurrent.{Future, TimeoutException}
 import scala.util.control.NonFatal

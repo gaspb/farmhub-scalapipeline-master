@@ -29,9 +29,9 @@ case class OutputsToFlow(el:OutputElement) {
                 val filename = el.outputEndpointURL
                 val flow = Flow[Any]
                     .map(s => ByteString(s + "\n"))
-                    .alsoTo(FileIO.toPath(Paths.get(filename)))
+                    .alsoTo(FileIO.toPath(Paths.get(filename.get)))
                 logger.info("Output to flow : "+filename)
-                AkkaRestServer.exposeOutputAkkaStream("todo", el.name, el.outputEndpointURL, FileIO.fromPath(Paths.get(filename)))
+                AkkaRestServer.exposeOutputAkkaStream("todo", el.name, el.outputEndpointURL.get, FileIO.fromPath(Paths.get(filename.get)))
 
                 flow
             }

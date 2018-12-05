@@ -88,12 +88,17 @@ case class TransformationsToFlow(el:TransformationElement) {
             case STREAM_HEAD => {
                 val taketop : Long = el.opt.getOrElse("top", 0).toString.toLong
                 if (taketop!=0) {
-                    Flow[Any].take(taketop)
+                    Flow[Any].map(b=>{
+                        //DEBUG
+                        log.info("TransfoToFLow - Stream head - Bytestring of size "+b.toString.getBytes().length)
+                        b
+                    }).take(taketop)
                 } else {
                     Flow[Any]
                 }
             }
             case STREAM_TAIL => { //TODO take last X
+                log.info("IN STREAM TAIL")
                 Flow[Any].reduce((t, t2)=>t2)
             }
             case MOCK_LOG => {

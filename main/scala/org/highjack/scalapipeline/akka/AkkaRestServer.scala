@@ -25,7 +25,7 @@ import org.slf4j.{Logger, LoggerFactory}
         var exposedInputsSourceMap :collection.mutable.ListMap[String,Source[ByteString,_]] = collection.mutable.ListMap.empty[String,Source[ByteString,_]]
         var exposedOutputsSourceMap :collection.mutable.ListMap[String,Source[ByteString,_]] = collection.mutable.ListMap.empty[String,Source[ByteString,_]]
         var exposedTriggerURLMap :collection.mutable.ListMap[String,String] = collection.mutable.ListMap.empty[String,String]
-        var exposedTriggerFuncMap :collection.mutable.ListMap[String,() => RunnableGraph[Any]] = collection.mutable.ListMap.empty[String,() => RunnableGraph[Any]]
+        var exposedTriggerFuncMap :collection.mutable.ListMap[String, RunnableGraph[Any]] = collection.mutable.ListMap.empty[String,RunnableGraph[Any]]
 
         def runnablePipelineMap :collection.mutable.ListMap[String,RunnableGraph[Any]] =  collection.mutable.ListMap.empty[String,RunnableGraph[Any]]
 
@@ -75,7 +75,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
         }
 
-        def exposeTrigger(pipelineId:String, triggerName:String, outputEndpointURL:String,  run: () => RunnableGraph[Any]): Unit = {
+        def exposeTrigger(pipelineId:String, triggerName:String, outputEndpointURL:String,  run: RunnableGraph[Any]): Unit = {
             val key = pipelineId+" // "+triggerName
 
             exposedTriggerURLMap += ((key,outputEndpointURL))

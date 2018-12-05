@@ -18,7 +18,6 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.duration.FiniteDuration._
 import scala.concurrent.{ExecutionContext, TimeoutException}
-import scala.util.Random
 import scala.util.control.NonFatal
 
 class MockMain2 {
@@ -53,7 +52,7 @@ class MockMain2 {
         EXAMPLE ENDPOINT ELEMENT
          */
         // val endpointElement:EndpointElement = EndpointElement("mock_ep", 1, false, 0, EndpointTypeEnum.REST_TEXTFILE_STREAM, MockMain.DOC_SHAKESPEAR_URL, "ep0", Map.empty )
-        val endpointElement:EndpointElement = EndpointElement("mock_ep",  EndpointTypeEnum.AKKA_HTTP_BYTESTRING_READ, MockMain.DOC_SHERLOCK_URL, 8080, "ep0", Map.empty )
+        val endpointElement:EndpointElement = EndpointElement("mock_ep",  EndpointTypeEnum.AKKA_HTTP_BYTESTRING_READ, Option(MockMain.DOC_SHERLOCK_URL), Option(8080), Option("ep0"), Option(Map.empty) )
 
       /*  val parseJsonTransfo:TransformationElement = TransformationElement("mock_tf_str", 2, false, 1, true, TransformationTypeEnum.PARSE_JSON_OBJECT, Map.empty)
 
@@ -62,9 +61,9 @@ class MockMain2 {
         val parseToString:TransformationElement = TransformationElement(1,"mock_parseToString", TransformationTypeEnum.BYTESTRING_TO_STRING, Map.empty)
         val countWords:TransformationElement = TransformationElement(2,"mock_countWords",  TransformationTypeEnum.WORD_OCCURENCE_COUNT, Map(("excludeCommonWords", "true")))
         val tail:TransformationElement = TransformationElement(3,"mock_countWords",  TransformationTypeEnum.STREAM_TAIL, Map.empty)
-        val outputElement:OutputElement = OutputElement(4,"out1","to_rest", OutputTypeEnum.TO_DOWNLOADABLE_FILE)
+        val outputElement:OutputElement = OutputElement(4,"out1",Option("to_rest"), OutputTypeEnum.TO_DOWNLOADABLE_FILE)
 
-        val trigger : TriggerElement = TriggerElement("mock_deadtrigger",  "some", TriggerTypeEnum.SIMPLE_RUN )
+        val trigger : TriggerElement = TriggerElement("mock_deadtrigger",  Option("some"), TriggerTypeEnum.SIMPLE_RUN )
 
 
         val branch : PipelineBranch = PipelineBranch(0,Set[PipelineElement](parseToString,  countWords,tail, outputElement), 1, 0)

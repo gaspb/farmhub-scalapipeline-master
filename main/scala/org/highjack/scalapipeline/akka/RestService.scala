@@ -7,6 +7,7 @@ import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSup
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.{Flow, RestartSource, Source, StreamConverters}
 import akka.util.ByteString
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
@@ -15,6 +16,8 @@ import scala.concurrent.duration.FiniteDuration
   * Created by High Jack on 17/10/2018.
   */
 object RestService {
+
+    val logger : Logger = LoggerFactory.getLogger(RestService.getClass)
     implicit val jsonStreamingSupport: JsonEntityStreamingSupport = EntityStreamingSupport.json()
     implicit val system = ActorSystem()
 
@@ -63,10 +66,10 @@ object RestService {
             0.2 // adds 20% "noise" to vary the intervals slightly
         ) { () =>
             Source.fromFutureSource {
-                println("----Requesting0")
+                logger.info("----Requesting0")
                 val response = Http(system).singleRequest(HttpRequest(uri = url, headers = headers))
 
-                response.failed.foreach(t => System.err.println(s"Request has been failed with $t"))
+                response.failed.foreach(t => logger.error(s"Request has been failed with $t"))
 
                 response.map(resp => {
                     resp.status match {
@@ -78,7 +81,7 @@ object RestService {
                         case code =>
                             val text = resp.entity.dataBytes.map(_.utf8String)
                             val error = s"Unexpected status code: $code, $text"
-                            System.err.println(error)
+                            logger.error(error)
                             Source.failed(new RuntimeException(error))
                     }
                 })
@@ -88,7 +91,7 @@ object RestService {
         restartSource
     }
     def akkaByteStream(url:String, port:String, headers:Seq[HttpHeader])(implicit ec: ExecutionContext): Source[ByteString, Any] = {
-        println("----Requesting2")
+        logger.info("----Requesting2")
         val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
             Http().outgoingConnection(url)
 
@@ -99,27 +102,31 @@ object RestService {
 
 
     def akkaByteDocumentStream(url:String, headers:Seq[HttpHeader], minBackoff:FiniteDuration, maxBackoff : FiniteDuration)(implicit ec: ExecutionContext): Source[ByteString, _] = {
-        Source.fromFutureSource[ByteString, Any] {
-            println("----Requesting1")
+        Source.single("").via(Flow[String].map((f:String)=>{
+            logger.info("----Requesting1 url "+url)
             val response = Http(system).singleRequest(HttpRequest(uri = url, headers = headers))
 
-            response.failed.foreach(t => System.err.println(s"Request has been failed with $t"))
+            response.failed.foreach(t => logger.error(s"Request has been failed with $t"))
 
             response.map[Source[ByteString, Any]](resp => {
                 resp.status match {
                     // if status is OK, then getting instance of Source[ByteString, NotUsed]
                     // to consume data from Twitter server
-                    case StatusCodes.OK => {   println("----Received response");resp.entity.withoutSizeLimit().dataBytes}
+                    case StatusCodes.OK => {   logger.info("----Received response");resp.entity.withoutSizeLimit().dataBytes}
                     // if not OK, then logging error and returning failed Source to try
                     // to restart the stream and issue new HTTP request
                     case code =>
                         val text = resp.entity.dataBytes.map(_.utf8String)
                         val error = s"Unexpected status code: $code, $text"
-                        System.err.println(error)
+                        logger.error(error)
                         Source.failed(new RuntimeException(error))
                 }
             })
-        }
+        })).flatMapConcat(f => Source.fromFutureSource(f)).map(b=>{
+            //DEBUG
+            logger.info("RestService - Bytestring of size "+b.length)
+            b
+        })
     }
 
 }

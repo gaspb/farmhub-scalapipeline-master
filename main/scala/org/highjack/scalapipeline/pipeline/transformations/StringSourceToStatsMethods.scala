@@ -15,7 +15,11 @@ object StringSourceToStatsMethods {
     def STRING_SOURCE_TO_WORD_OCCURRENCE_STAT_SOURCE(excludeCommonWords:Boolean, take:Option[Long]) : Flow[String, Map[String, Long], NotUsed]  = {
        var lgth = 0
         logger.info("STRING_SOURCE_TO_WORD_OCCURRENCE_STAT_SOURCE - take is defined="+( if (take.isDefined) take.get else false))
-        val flow = Flow[String].fold(Map.empty[String, Long]) {
+        val flow = Flow[String].map(b=>{
+            //DEBUG
+            logger.info("COUNT OCCURRENCES - BEFORE -  Bytestring of size "+b.toString.getBytes().length)
+            b
+        }).scan(Map.empty[String, Long]) {
             (acc, text) => {
                 lgth+= text.length
                /* logger.info(">>>>>> ---------     Counting occurrences  ------------"+text.length+"/"+lgth)*/

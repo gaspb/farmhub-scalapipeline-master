@@ -5,7 +5,7 @@ import org.highjack.scalapipeline.pipeline.trigger.TriggerTypeEnum.TriggerTypeEn
 import org.highjack.scalapipeline.pipeline.{PipelineElement, PipelineElementTypeEnum}
 
 
-case class TriggerElement(name:String, outputEndpointURL : String, ttype: TriggerTypeEnum) extends PipelineElement {
+case class TriggerElement(name:String, outputEndpointURL : Option[String], ttype: TriggerTypeEnum) extends PipelineElement {
     override def elemType : PipelineElementTypeEnum = PipelineElementTypeEnum.OUTPUT
     override def position:Int = -1
 

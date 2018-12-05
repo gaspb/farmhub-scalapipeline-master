@@ -17,8 +17,8 @@ object PerfUtil {
     }
 
     def stopAndLog(): Unit = {
-        if(timer==null) {
-            logger.error("Timer wasn't started")
+        if(timer==null || !timer.isRunning) {
+            logger.error("stopAndLog - Timer wasn't started")
             return
         }
         timer.stop()

@@ -23,7 +23,7 @@ case class OutputToSink(el:OutputElement) {
                 val filename = el.outputEndpointURL
                 Flow[String]
                     .map(s => ByteString(s + "\n"))
-                    .to(FileIO.toPath(Paths.get(filename)))
+                    .to(FileIO.toPath(Paths.get(filename.get)))
             }
             case TO_KAFKA => {
                 ???

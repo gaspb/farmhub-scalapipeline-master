@@ -37,6 +37,7 @@ case class LogicBuilder(ppl:PipelineModel) {
     import LogicBuilder._
 
     def buildLogicFlow() : LogicBuilder = {
+        logger.info("BUILD LOGIC FLOW -- ")
        //ppl.branches //TODO
         val branch0 = ppl.branches.head
         flow = oneBranchFlow(branch0)
@@ -45,17 +46,21 @@ case class LogicBuilder(ppl:PipelineModel) {
     }
 
     def buildEndpoint() : LogicBuilder = {
+
         val endpoint:EndpointElement = ppl.endpoint
+        logger.info("BUILD ENDPOINT -- "+endpoint.endpointType)
         this.getPplGraphs = () => endpointToRunnableGraph(endpoint, flow)
         this
     }
 
-        def setUpTrigger() : LogicBuilder = {
+    def setUpTrigger() : LogicBuilder = {
         val trigger:TriggerElement = ppl.trigger
-        val futureSource : Source[Any, _] = triggerToFuture(trigger, this.getPplGraphs)
+        logger.info("BUILD TRIGGER -- "+trigger.ttype)
+        val runnable = this.getPplGraphs()
+        val futureSource : Source[Any, _] = triggerToFuture(trigger, runnable)
         futureSource.runWith(Sink.foreach(m => {
             logger.info("Future completed with "+m)
-            doTrigger(m)
+            doTrigger(m, runnable)
             /*if(m.isCompleted) {
                 logger.info("Future is already completed")
                 doTrigger(m.value)
@@ -71,10 +76,10 @@ case class LogicBuilder(ppl:PipelineModel) {
         this
     }
 
-    private def doTrigger(s:Any): Unit = {
+    private def doTrigger(s:Any, runnable:RunnableGraph[Any]): Unit = {
         logger.info("Recieved trigger call, running graph and starting timer")
         PerfUtil.initTimer()
-        this.getPplGraphs().async.run()
+        runnable.async.run()
 
 
         logger.info("Result is of type "+result.getClass.getName)
@@ -110,9 +115,9 @@ private object LogicBuilder {
         EndpointToRunnableGraph(elem, logicFlow).get()
     }
 
-    def triggerToFuture(elem:TriggerElement, run: () => RunnableGraph[Any]): Source[Any, _] = {
+    def triggerToFuture(elem:TriggerElement, runnable: RunnableGraph[Any]): Source[Any, _] = {
         logger.info("adding trigger to future : "+elem.name)
-        TriggerToFutureSource(elem).trigger(run)
+        TriggerToFutureSource(elem).trigger(runnable)
     }
 
 

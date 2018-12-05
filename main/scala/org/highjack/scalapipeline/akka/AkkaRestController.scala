@@ -78,9 +78,10 @@ class AkkaRestController {
         logger.info("Received call for proxy " + url + "  , lgth="+AkkaRestServer.exposedTriggerFuncMap.size)
         val key = Java8Util.getKeyFromValue(url, AkkaRestServer.exposedTriggerURLMap)
         logger.info("Retrieved key " + key )
-        val runnable : () => RunnableGraph[Any]= Java8Util.get[() => RunnableGraph[Any]](key, AkkaRestServer.exposedTriggerFuncMap)
+        val runnable : RunnableGraph[Any]= Java8Util.get[RunnableGraph[Any]](key, AkkaRestServer.exposedTriggerFuncMap)
         PerfUtil.initTimer()
-        Future {runnable().run()}
+        logger.info("Running graph "  )
+        Future {runnable.run()}
         "200"
     }
 

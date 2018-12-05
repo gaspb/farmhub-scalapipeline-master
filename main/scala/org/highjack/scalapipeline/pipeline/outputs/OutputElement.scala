@@ -9,7 +9,7 @@ import org.highjack.scalapipeline.scalaThreads.ScalaThread
 import scala.concurrent.Future
 
 
- case class OutputElement(position:Int, name:String, outputEndpointURL : String, otype : OutputTypeEnum) extends PipelineElement {
+ case class OutputElement(position:Int, name:String, outputEndpointURL : Option[String], otype : OutputTypeEnum) extends PipelineElement {
     override def elemType : PipelineElementTypeEnum = PipelineElementTypeEnum.OUTPUT
 
 
