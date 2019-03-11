@@ -12,8 +12,8 @@ import org.highjack.scalapipeline.pipeline._
 import org.highjack.scalapipeline.pipeline.endpoints.{EndpointElement, EndpointTypeEnum}
 import org.highjack.scalapipeline.pipeline.outputs.{OutputElement, OutputMethods}
 import org.highjack.scalapipeline.pipeline.transformations.{StringSourceToStatsMethods, TransformationElement}
-import org.highjack.scalapipeline.scalaThreadExecutor.ScalaThreadExecutor
-import org.highjack.scalapipeline.scalaThreads.ScalaThread
+import org.highjack.scalapipeline.executor.PipelineTaskExecutor
+import org.highjack.scalapipeline.stream.ExecutedPipelineTask
 import org.highjack.scalapipeline.scalaTransformation.ScalaTransformation
 import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.{JsValue, Reads}

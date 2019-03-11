@@ -12,7 +12,7 @@ import org.highjack.scalapipeline.pipeline.endpoints.{EndpointElement, EndpointT
 import org.highjack.scalapipeline.pipeline.outputs.{OutputElement, OutputTypeEnum}
 import org.highjack.scalapipeline.pipeline.transformations.{TransformationElement, TransformationTypeEnum}
 import org.highjack.scalapipeline.pipeline.trigger.{TriggerElement, TriggerTypeEnum}
-import org.highjack.scalapipeline.scalaThreadExecutor.ScalaThreadExecutor
+import org.highjack.scalapipeline.executor.PipelineTaskExecutor
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.duration.FiniteDuration
@@ -41,7 +41,7 @@ class MockMain2 {
 
     def mockThread() : Unit = {
         logger.error("--  mockThread  --")
-        ScalaThreadExecutor().run("mock_ppl", "mock_usr", mockPplJson(), "moc_topic")
+        PipelineTaskExecutor().run("mock_ppl", "mock_usr", mockPplJson(), "moc_topic")
     }
 
     def mockPipeline(): PipelineModel = {

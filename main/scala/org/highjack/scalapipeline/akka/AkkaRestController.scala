@@ -6,7 +6,7 @@ import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source, StreamConv
 import akka.util.ByteString
 import com.google.common.io.BaseEncoding
 import org.highjack.scalapipeline.pipeline.{JsonPipelineVM, PipelineModelJSONParser}
-import org.highjack.scalapipeline.scalaThreadExecutor.ScalaThreadExecutor
+import org.highjack.scalapipeline.executor.PipelineTaskExecutor
 import org.highjack.scalapipeline.utils.{Java8Util, PerfUtil}
 import org.slf4j.{Logger, LoggerFactory}
 import org.springframework.http.MediaType
@@ -33,7 +33,7 @@ class AkkaRestController {
        val str =  ByteString(BaseEncoding.base64().decode(jsonPipeline.getBase64())).utf8String
         logger.info("---------- recieved : "+str)
         val pplModel = PipelineModelJSONParser.parse(str)
-        ScalaThreadExecutor().run("ppl1","user1", pplModel, "topic1")
+        PipelineTaskExecutor().run("ppl1","user1", pplModel, "topic1")
         logger.info("---------- RETURNING : "+true)
         new ResponseEntity[Any](true, HttpStatus.OK)
     }

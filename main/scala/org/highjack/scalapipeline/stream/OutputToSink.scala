@@ -1,4 +1,4 @@
-package org.highjack.scalapipeline.scalaThreads
+package org.highjack.scalapipeline.stream
 
 import java.nio.file.Paths
 

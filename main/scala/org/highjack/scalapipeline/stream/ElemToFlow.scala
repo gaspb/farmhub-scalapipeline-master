@@ -1,4 +1,4 @@
-package org.highjack.scalapipeline.scalaThreads
+package org.highjack.scalapipeline.stream
 
 import akka.NotUsed
 import akka.stream.scaladsl.{Flow, Source}

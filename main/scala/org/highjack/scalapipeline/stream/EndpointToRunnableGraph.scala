@@ -1,4 +1,4 @@
-package org.highjack.scalapipeline.scalaThreads
+package org.highjack.scalapipeline.stream
 
 import akka.actor.{Actor, ActorSystem}
 import akka.stream.{ActorMaterializer, OverflowStrategy}

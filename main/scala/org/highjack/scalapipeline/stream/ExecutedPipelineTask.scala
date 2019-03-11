@@ -1,4 +1,4 @@
-package org.highjack.scalapipeline.scalaThreads
+package org.highjack.scalapipeline.stream
 
 import java.util.{Collections, Properties}
 
@@ -15,8 +15,6 @@ import scala.util.control.NonFatal
 
 /**
   *
-  * A ScalaThread is an executed pipeline.
-  *
   * The data enters with the ENDPOINT element, either listening to incoming data at a specified endpoint,
   * subscribing to a kafka channel or reading data from an endpoint at an interval or querying a database
   * Ingested data is then passed to further elements.
@@ -32,7 +30,7 @@ import scala.util.control.NonFatal
   *
   *
   */
-class ScalaThread(pipelineId:String, userId:String, scalaPipeline: PipelineModel) {
+class ExecutedPipelineTask(pipelineId:String, userId:String, scalaPipeline: PipelineModel) {
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
     def _userId: String = userId
     def _pipelineId: String = pipelineId
@@ -46,7 +44,7 @@ class ScalaThread(pipelineId:String, userId:String, scalaPipeline: PipelineModel
     def _kafkaProducer : KafkaProducer[String, String] = kafkaProducer
     val STRING_DESERIALIZER =  KafkaConstants.STRING_DESERIALIZER
     val STRING_SERIALIZER =  KafkaConstants.STRING_SERIALIZER
-    val self:ScalaThread = this
+    val self:ExecutedPipelineTask = this
     implicit val system = ActorSystem()
 
     var kafkaMessageWrapping:Boolean = false
