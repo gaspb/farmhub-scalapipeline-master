@@ -20,7 +20,10 @@ import scala.concurrent.duration.FiniteDuration._
 import scala.concurrent.{ExecutionContext, TimeoutException}
 import scala.util.control.NonFatal
 
-class MockMain2 {
+/**
+  * end-to-end test, called in main (for debug)
+  */
+class PipelineTaskMock {
 
     import AkkaStreamLocalContext.system
     import AkkaStreamLocalContext.executor
@@ -115,7 +118,10 @@ class MockMain2 {
   """
     PipelineModelJSONParser.parse(json)
     }
-
-
 }
 
+object PipelineTaskMock {
+    val DOC_SHAKESPEAR_URL:String = "https://ocw.mit.edu/ans7870/6/6.006/s08/lecturenotes/files/t8.shakespeare.txt"
+    val DOC_SHERLOCK_URL:String = "http://norvig.com/big.txt"
+    val JSON_CHUCK_NORRIS_STREAM:String = "https://api.chucknorris.io/jokes/random"
+}

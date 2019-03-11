@@ -6,7 +6,7 @@ import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source, SourceQueu
 import akka.util.ByteString
 import org.highjack.scalapipeline.akka.{HTTPManager, TCPManager}
 import org.highjack.scalapipeline.kafka.KafkaUtil
-import org.highjack.scalapipeline.mock.{MockMain, MockMain2}
+import org.highjack.scalapipeline.mock.{MockMain, PipelineTaskMock}
 import org.highjack.scalapipeline.pipeline.endpoints.{EndpointElement, JSONRestEndpointMethods}
 import org.highjack.scalapipeline.pipeline.endpoints.EndpointTypeEnum._
 import org.highjack.scalapipeline.utils.PerfUtil
@@ -53,7 +53,7 @@ case class EndpointToRunnableGraph(el:EndpointElement, flow:Flow[ByteString,_,_]
             }
 
             case MOCK_TCP => {
-             new MockMain2().fakeStringByteSource().via(flow).async
+             new PipelineTaskMock().fakeStringByteSource().via(flow).async
                  .to(Sink.onComplete( s => PerfUtil.stopAndLog()))
             }
 
