@@ -8,16 +8,14 @@ import org.highjack.scalapipeline.pipeline.outputs.OutputTypeEnum.{TO_AKKA_REMOT
 import org.highjack.scalapipeline.pipeline.outputs.OutputElement
 
 
-/**
-  * Created by High Jack on 28/10/2018.
-  */
+//NOT USED, => OutputToFlow instead
+@deprecated
 case class OutputToSink(el:OutputElement) {
 
     def get(): Sink[_,_] ={
         el.otype match {
             case TO_AKKA_REMOTE_TCP => {
                 ???
-
             }
             case TO_DOWNLOADABLE_FILE => {
                 val filename = el.outputEndpointURL

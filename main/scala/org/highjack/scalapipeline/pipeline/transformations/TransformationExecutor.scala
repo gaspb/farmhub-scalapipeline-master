@@ -1,22 +1,17 @@
 package org.highjack.scalapipeline.pipeline.transformations
 
-import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Flow, Source}
-import akka.util.ByteString
-import org.highjack.scalapipeline.kafka.KafkaUtil
+import org.highjack.scalapipeline.akka.AkkaStreamLocalContext._
 import org.highjack.scalapipeline.pipeline.PipelineElementExecutor
 import org.highjack.scalapipeline.pipeline.transformations.TransformationTypeEnum._
 import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.{JsValue, Json, Reads, __}
 
-import scala.concurrent.ExecutionContext
 
-
+@deprecated //=> scalaThreads.TransformationToFlow
 case class TransformationExecutor(transformationElement: TransformationElement)(implicit val wrapKafka:Boolean) extends PipelineElementExecutor {
 
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
-    implicit val system = ActorSystem()
-    implicit val exec: ExecutionContext =system.dispatcher
 
     /**
       * Execute a source.via(flow)
@@ -70,14 +65,3 @@ case class TransformationExecutor(transformationElement: TransformationElement)(
     }
 
 }
-/*
-
-idleTimeout(idleDuration)
-                .scan("")((acc, curr) =>
-                    if (acc.contains(jsonDelimiter getOrElse "\r\n")) {logger.error("---------DIVIDING--------"+curr.utf8String);curr.utf8String}
-                    else acc + curr.utf8String
-                )
-                .filterNot(_.trim.isEmpty)
-                .map(curr =>  Json.parse(curr))
-
- */

@@ -1,25 +1,19 @@
 package org.highjack.scalapipeline.akka
 
-import akka.NotUsed
-import akka.actor.ActorSystem
+
 import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
-import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{Directives, RequestContext, Route}
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl._
 import akka.util.ByteString
+import AkkaStreamLocalContext._
 import org.highjack.scalapipeline.utils.{PerfUtil, StringEncryptionUtil}
 import org.slf4j.{Logger, LoggerFactory}
 
 
     //TODO import system.dispatcher // to get an implicit ExecutionContext into scope
     object AkkaRestServer extends Directives {
-        implicit val system = ActorSystem()
-        implicit val materializer = ActorMaterializer()
-        // needed for the future flatMap/onComplete in the end
-        implicit val executionContext = system.dispatcher
+        //TEMPORARY
         var exposedOutputsURLMap :collection.mutable.ListMap[String,String] = collection.mutable.ListMap.empty[String,String]
         var exposedInputsURLMap :collection.mutable.ListMap[String,String] = collection.mutable.ListMap.empty[String,String]
         var exposedInputsSourceMap :collection.mutable.ListMap[String,Source[ByteString,_]] = collection.mutable.ListMap.empty[String,Source[ByteString,_]]
@@ -48,13 +42,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
 
         }
-        /* val route:Route =
-           (get & path(encryptedURL)) {
-               logger.info("Completed request "+encryptedURL)
-               complete(
-                    HttpEntity(ContentTypes.`application/octet-stream`, source2)
-               )
-           }*/
+
         /**
           * Post entities to the url retrieved from POST:getInputURL {pipelineId:XXX, inputElementName:XXX}
          */
@@ -77,20 +65,8 @@ import org.slf4j.{Logger, LoggerFactory}
 
         def exposeTrigger(pipelineId:String, triggerName:String, outputEndpointURL:String,  run: RunnableGraph[Any]): Unit = {
             val key = pipelineId+" // "+triggerName
-
             exposedTriggerURLMap += ((key,outputEndpointURL))
             exposedTriggerFuncMap += ((key,run))
             logger.info("Exposing stream trigger "+exposedTriggerURLMap.size+" for pipeline "+pipelineId+" and trigger "+triggerName+" : url=/"+outputEndpointURL)
-
-
-
         }
-
-        //ESXPOSE STREAM JSON => NEED PROTOCOL
-       /* val response = HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, input))
-
-        val value: Source[Tweet, Any] =
-            response.entity.dataBytes
-                .via(jsonStreamingSupport.framingDecoder) // pick your Framing (could be "\n" etc)
-                .mapAsync(1)(bytes ⇒ Unmarshal(bytes).to[Tweet]) // unmarshal one by one*/
     }

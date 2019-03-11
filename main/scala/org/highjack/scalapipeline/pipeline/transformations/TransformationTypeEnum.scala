@@ -28,12 +28,9 @@ object TransformationTypeEnum extends Enumeration {
 
         MOCK_LOG,//mock
 
-
         //CUSTOM
         OPERATION_BASED, //operation made with the app
         WORD_OCCURENCE_COUNT //excludeCommonWords:Boolean
-
-
 
          = Value
     def valueOf(name: String) = TransformationTypeEnum.values.find(_.toString == name)

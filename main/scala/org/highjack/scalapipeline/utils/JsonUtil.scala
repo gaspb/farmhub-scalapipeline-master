@@ -2,9 +2,6 @@ package org.highjack.scalapipeline.utils
 
 import play.api.libs.json.{Json, Reads, Writes}
 
-/**
-  * Created by High Jack on 21/10/2018.
-  */
 object JsonUtil {
 
     def serialize[K <:AnyRef](obj:K)(implicit w:Writes[K]): String = {

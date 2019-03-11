@@ -9,6 +9,7 @@ import akka.stream.scaladsl.{Flow, GraphDSL, Keep, Sink, Source}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@deprecated //switching to kafka-only
 object WebSocketClient {
  /* def apply(id: String, endpoint: String, supervisor: ActorRef)
            (implicit

@@ -1,26 +1,20 @@
 package org.highjack.scalapipeline.scalaThreads
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
-import akka.{Done, NotUsed}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source, StreamConverters}
+import akka.NotUsed
+import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import org.highjack.scalapipeline.pipeline.transformations.{StringSourceToStatsMethods, TransformationElement}
 import org.highjack.scalapipeline.pipeline.transformations.TransformationTypeEnum._
+import org.highjack.scalapipeline.akka.AkkaStreamLocalContext._
 import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.JsValue
 import org.json4s.native.Json
 import org.json4s.DefaultFormats
 import collection.immutable.Iterable
-/**
-  * Created by High Jack on 28/10/2018.
-  */
+
+
 case class TransformationsToFlow(el:TransformationElement) {
     final val log: Logger = LoggerFactory.getLogger(this.getClass)
-
-    implicit val system = ActorSystem()
-    implicit val materializer = ActorMaterializer()
-
 
     def get(): Flow[_,_,NotUsed] ={
         val collectionLevel : Int = el.opt.getOrElse("collectionLevel",0).toString.toInt
@@ -97,20 +91,13 @@ case class TransformationsToFlow(el:TransformationElement) {
                     Flow[Any]
                 }
             }
-            case STREAM_TAIL => { //TODO take last X
+            case STREAM_TAIL => {
                 log.info("IN STREAM TAIL")
                 Flow[Any].reduce((t, t2)=>t2)
             }
             case MOCK_LOG => {
                 Flow[Any].map(l=>{log.info("MockTransformation--"+l);l})
             }
-
-
-
-
         }
     }
-
-
-
 }

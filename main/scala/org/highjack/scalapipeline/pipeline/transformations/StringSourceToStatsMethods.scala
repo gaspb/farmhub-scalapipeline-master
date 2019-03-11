@@ -8,6 +8,9 @@ import scala.collection.immutable.ListMap
 import cats.implicits._
 import org.slf4j.{Logger, LoggerFactory}
 
+/**
+  * Mock functional methods, shall be added through the platform
+  */
 object StringSourceToStatsMethods {
 
     val uniqueBuckets = 500 //max number of elements to keep in memory
@@ -15,25 +18,21 @@ object StringSourceToStatsMethods {
     def STRING_SOURCE_TO_WORD_OCCURRENCE_STAT_SOURCE(excludeCommonWords:Boolean, take:Option[Long]) : Flow[String, Map[String, Long], NotUsed]  = {
        var lgth = 0
         logger.info("STRING_SOURCE_TO_WORD_OCCURRENCE_STAT_SOURCE - take is defined="+( if (take.isDefined) take.get else false))
-        val flow = Flow[String].map(b=>{
-            //DEBUG
-            logger.info("COUNT OCCURRENCES - BEFORE -  Bytestring of size "+b.toString.getBytes().length)
-            b
-        }).scan(Map.empty[String, Long]) {
+        val flow = Flow[String]
+            .scan(Map.empty[String, Long]) {
             (acc, text) => {
                 lgth+= text.length
                /* logger.info(">>>>>> ---------     Counting occurrences  ------------"+text.length+"/"+lgth)*/
                 val wc: Map[String, Long] = countWordsOccurences(text, if(excludeCommonWords) commonWordsToExclude else Set.empty[String])
                 // then use Monoid append operation to update our statistics in 'acc'
-                // with what is just calculated for current text message
                 ListMap((acc |+| wc).toSeq.sortBy(-_._2).take(uniqueBuckets): _*)
             }
         }
         if (take.isDefined) flow.map(m=> m.take(take.get.toInt)) else flow
     }
 
-    // Map of [String and Int] is our statistics data structure, where String is
-    // particular word and Int is number/count of its occurences.
+    // Map of [String, Long] is our statistics data structure, where String is
+    // particular word and Long is number of occurrences.
     def countWordsOccurences(text: String, wordsToExclude : Set[String]): Map[String, Long] = {
         text.split(" ")
             .filter(s => s.trim.nonEmpty && s.matches("\\w+"))
@@ -48,8 +47,8 @@ object StringSourceToStatsMethods {
 
 
 
-
-       //current size : 186
+       //MOCK - EXAMPLE to test pipeline performance and CPU usage (as every single word is tested against this list)
+       //current size : 196
     val commonWordsToExclude:Set[String] = Set[String]("i", "the", "a", "is", "you", "our", "your", "us", "to", "and", "of", "that", "this",
         "are", "my", "in", "for", "with", "as", "but", "by", "so", "it", "have", "we", "not", "his", "her", "it", "its", "me", "thou", "be",
         "he", "she", "me", "will", "thy", "what", "who", "which", "shall", "should", "would", "could", "can", "him", "all", "do", "if", "or",

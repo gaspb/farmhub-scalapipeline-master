@@ -62,12 +62,4 @@ case class EndpointToRunnableGraph(el:EndpointElement, flow:Flow[ByteString,_,_]
 }
 
 
-    class KSource extends Actor {
-        val log : Logger = LoggerFactory.getLogger(this.getClass)
-        def receive = {
-            case s: Any =>
-                log.info("In KSource actor : "+s)
-                val reply = ByteString(s.toString)
-                sender() ! reply
-        }
-    }
+

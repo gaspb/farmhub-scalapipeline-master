@@ -3,20 +3,16 @@ package org.highjack.scalapipeline.scalaThreads
 import java.nio.file.Paths
 
 import akka.NotUsed
-import akka.stream.scaladsl.{FileIO, Flow, Sink}
+import akka.stream.scaladsl.{FileIO, Flow}
 import akka.util.ByteString
 import org.highjack.scalapipeline.akka.{AkkaRestServer, TCPManager}
 import org.highjack.scalapipeline.pipeline.outputs.OutputElement
 import org.highjack.scalapipeline.pipeline.outputs.OutputTypeEnum._
-import org.highjack.scalapipeline.scalaThreads.LogicBuilder.logger
-import org.highjack.scalapipeline.web.rest.kafka.{ApiResource, MessageModel, MessageModelWithPayload}
+import org.highjack.scalapipeline.web.rest.kafka.{ApiResource, MessageModel}
 import org.slf4j.{Logger, LoggerFactory}
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.integration.support.MessageBuilder
-import org.springframework.stereotype.Service
-/**
-  * Created by High Jack on 28/10/2018.
-  */
+
+
 case class OutputsToFlow(el:OutputElement) {
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
     def get(): Flow[_,_,NotUsed] ={
@@ -40,7 +36,7 @@ case class OutputsToFlow(el:OutputElement) {
                 val flow = Flow[Any]
                     .fold(0)((a,b)=>{
                         logger.info("IN WEBSOCKET -"+a+"- WRITING "+b.toString())
-                        KafkaProducer.produce(a+"-", b.toString)
+                        StaticKafkaProducer.produce(a+"-", b.toString)
                         a+1
                     })
                 flow
@@ -51,22 +47,15 @@ case class OutputsToFlow(el:OutputElement) {
             case MOCK_TCP => {
                 TCPManager.outputToTCPFlow(TCPManager.gtwHost, TCPManager.gtwPort)
             }
-
-
         }
-
     }
-
-
-
-
 }
 
-object KafkaProducer {
+//debug
+object StaticKafkaProducer {
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
     def produce(str:String, load:String): Unit = {
         logger.info("KafkaProducer - producing string "+load)
-
         ApiResource.getStaticChannel.send(MessageBuilder.withPayload(new MessageModel().setMessage(load)).build)
     }
 }

@@ -1,20 +1,15 @@
 package org.highjack.scalapipeline.pipeline.outputs
 
-import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Flow, Source}
-import akka.util.ByteString
+import org.highjack.scalapipeline.akka.AkkaStreamLocalContext._
 import org.highjack.scalapipeline.pipeline.PipelineElementExecutor
-import org.highjack.scalapipeline.scalaThreads.ScalaThread
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.ExecutionContext
 
-
+@deprecated
 case class OutputExecutor(outputElement: OutputElement)(implicit val wrapKafka:Boolean) extends PipelineElementExecutor {
 
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
-    implicit val system = ActorSystem()
-    implicit val exec: ExecutionContext =system.dispatcher
 
     /**
       * Execute a source.via(flow)
@@ -28,22 +23,9 @@ case class OutputExecutor(outputElement: OutputElement)(implicit val wrapKafka:B
     }
 
 
-    def run[A<:AnyRef,B](source:Source[A,_], thread:ScalaThread): Source[B,_] = {
-        /*outputElement.elemType match {
-            case _ => _ //TODO
-        }*/
-        ???
-    }
+  /*  def run[A<:AnyRef,B](source:Source[A,_], thread:ScalaThread): Source[B,_] = {
+
+    }*/
 
 }
-/*
 
-idleTimeout(idleDuration)
-                .scan("")((acc, curr) =>
-                    if (acc.contains(jsonDelimiter getOrElse "\r\n")) {logger.error("---------DIVIDING--------"+curr.utf8String);curr.utf8String}
-                    else acc + curr.utf8String
-                )
-                .filterNot(_.trim.isEmpty)
-                .map(curr =>  Json.parse(curr))
-
- */

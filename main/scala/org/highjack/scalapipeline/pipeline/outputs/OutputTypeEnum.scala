@@ -6,7 +6,7 @@ object OutputTypeEnum extends Enumeration {
         TO_REST_ENDPOINT,
         TO_KAFKA,
         TO_AKKA_REMOTE_TCP,
-        WEBSOCKET,//+-== kafka
+        WEBSOCKET,//depr => kafka
         MOCK_TCP
 
          = Value

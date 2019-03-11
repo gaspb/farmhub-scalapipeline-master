@@ -27,6 +27,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 import scala.util.control.NonFatal
 
+@deprecated
 class MockMain {
 
 /*

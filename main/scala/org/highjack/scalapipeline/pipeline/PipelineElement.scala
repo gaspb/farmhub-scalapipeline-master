@@ -10,21 +10,13 @@ trait PipelineElement {
 /*
     var applyToFlowValue : Boolean = false
     //if true,
-
 */
 
     //TODO
-    //
     /*
     Get a source from the endpoint/kafka manually,
-
-    the source and an implicit pass(value) method is given to
-
-
-
+    the source and an implicit pass(value) method is given
     At each endpoint there is the "commit to kafka" option
-
-
 
     */
 }

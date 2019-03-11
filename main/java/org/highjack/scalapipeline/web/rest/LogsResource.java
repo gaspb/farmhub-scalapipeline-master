@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Controller for view and managing Log Level at runtime.
+ * ADMIN -- View and manage Log Level at runtime through REST
  */
 @RestController
 @RequestMapping("/management")

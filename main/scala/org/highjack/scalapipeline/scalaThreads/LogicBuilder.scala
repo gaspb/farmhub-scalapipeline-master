@@ -1,8 +1,5 @@
 package org.highjack.scalapipeline.scalaThreads
 
-import java.time.temporal.TemporalUnit
-import java.util.concurrent.TimeUnit
-
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.{Done, NotUsed}
@@ -14,13 +11,9 @@ import org.highjack.scalapipeline.pipeline.trigger.TriggerElement
 import org.highjack.scalapipeline.utils.PerfUtil
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.{Future, Promise}
-import scala.util.Try
-
-
-//
-import com.google.common.base.Stopwatch
-
+/**
+  * Build the executable pipeline stream with source, flow, sink and trigger
+  */
 case class LogicBuilder(ppl:PipelineModel) {
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -42,7 +35,6 @@ case class LogicBuilder(ppl:PipelineModel) {
         val branch0 = ppl.branches.head
         flow = oneBranchFlow(branch0)
         this
-
     }
 
     def buildEndpoint() : LogicBuilder = {
@@ -61,34 +53,19 @@ case class LogicBuilder(ppl:PipelineModel) {
         futureSource.runWith(Sink.foreach(m => {
             logger.info("Future completed with "+m)
             doTrigger(m, runnable)
-            /*if(m.isCompleted) {
-                logger.info("Future is already completed")
-                doTrigger(m.value)
-            }
             //TODO if m.isCompleted or onComplete
-            m.onComplete(s=> {
-                logger.info("Future completed with "+s)
-                doTrigger(s)
-
-            })*/
-
         }))
         this
     }
 
     private def doTrigger(s:Any, runnable:RunnableGraph[Any]): Unit = {
-        logger.info("Recieved trigger call, running graph and starting timer")
+        logger.info("Received trigger call, running graph and starting timer")
         PerfUtil.initTimer()
         runnable.async.run()
 
-
         logger.info("Result is of type "+result.getClass.getName)
         logger.info("result is "+result)
-
-
-
     }
-
 }
 
 
@@ -97,11 +74,14 @@ private object LogicBuilder {
 
     def oneBranchFlow(branch:PipelineBranch): Flow[ByteString, Any, NotUsed] = {
         val flow:Flow[ByteString,Any,NotUsed] = Flow[ByteString]
-        branch.elements.toList.sortWith(_.position < _.position).foldLeft(flow)((prevFlow, elem)=> {
-            logger.info("Folding elem : "+elem.name)
-            prevFlow
-                .via(elemToFlow(elem))
-        })
+        branch.elements
+            .toList
+            .sortWith(_.position < _.position)
+            .foldLeft(flow)((prevFlow, elem)=> {
+                logger.info("Folding elem : "+elem.name)
+                prevFlow
+                    .via(elemToFlow(elem))
+            })
     }
 
 

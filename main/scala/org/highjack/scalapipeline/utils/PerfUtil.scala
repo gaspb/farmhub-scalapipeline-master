@@ -9,11 +9,10 @@ import org.slf4j.{Logger, LoggerFactory}
 object PerfUtil {
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
 
-
     var timer:Stopwatch = _
     def initTimer(): Unit = {
         timer = Stopwatch.createStarted()
-        logger.info("------ timer started");
+        logger.info("------ timer started")
     }
 
     def stopAndLog(): Unit = {
@@ -26,6 +25,4 @@ object PerfUtil {
         logger.info("------ Stream completion took  "+timer.elapsed().toMillis+" milliseconds")
         logger.info("------ == "+timer.elapsed().getSeconds+" seconds")
     }
-
-
 }

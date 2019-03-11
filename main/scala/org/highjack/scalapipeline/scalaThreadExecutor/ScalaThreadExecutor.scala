@@ -11,7 +11,6 @@ import org.highjack.scalapipeline.scalaThreads.ScalaThread
 
 import scala.concurrent.{ExecutionContext, Future}
 
-//@Service
 case class ScalaThreadExecutor() {
     protected implicit val context:ExecutionContext =
         asExecutionContext(Executors.newSingleThreadExecutor())
@@ -20,9 +19,7 @@ case class ScalaThreadExecutor() {
 
     def run(pipelineId: String, userKey: String, scalaPipeline: PipelineModel, kafkaTopic : String): String = {
         val scalaThread = new ScalaThread(pipelineId, userKey, scalaPipeline)
-        activeThreads.+((pipelineId+"//"+userKey, scalaThread))
-       // scalaThread.outputs
-        //return scalaThread.outputs
+        activeThreads += ((pipelineId+"//"+userKey, scalaThread))
         Future(scalaThread.start) //async
         ""
     }

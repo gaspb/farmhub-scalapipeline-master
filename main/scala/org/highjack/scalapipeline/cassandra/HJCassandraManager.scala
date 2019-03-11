@@ -1,3 +1,5 @@
+
+
 /*
 package org.highjack.scalapipeline.cassandra
 import com.datastax.driver.core.{ResultSet, Session}
@@ -29,9 +31,6 @@ class HJCassandraManager @Autowired()(sparkConf: SparkConf, sparkContext: JavaSp
         rdd.cache()
         rdd
     }
-
-
-
 
     def insertWtQuery(map: Map[String, AnyRef], _userId:String, _pipelineId:String, _tableId:String): Unit = {
         CassandraConnector(sparkConf).withSessionDo { session:Session =>
@@ -68,8 +67,5 @@ class HJCassandraManager @Autowired()(sparkConf: SparkConf, sparkContext: JavaSp
             override def call(row: CassandraRow): Int = row.getInt("value")
         }).take(maxCount)
     }
-
-
-
 }
 */

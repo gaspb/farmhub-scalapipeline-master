@@ -1,6 +1,5 @@
 package org.highjack.scalapipeline.pipeline
 
-
 import org.highjack.scalapipeline.pipeline.PipelineElementTypeEnum._
 import org.highjack.scalapipeline.pipeline.endpoints.{EndpointElement, EndpointTypeEnum}
 import org.highjack.scalapipeline.pipeline.endpoints.EndpointTypeEnum.EndpointTypeEnum
@@ -12,17 +11,13 @@ import org.highjack.scalapipeline.pipeline.trigger.{TriggerElement, TriggerTypeE
 import org.highjack.scalapipeline.pipeline.trigger.TriggerTypeEnum.TriggerTypeEnum
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-/**
-  * Created by High Jack on 28/10/2018.
-  */
+
+
 object PipelineModelJSONParser {
 
     def parse(str:String): PipelineModel = {
         Json.parse(str).as[PipelineModel]
     }
-
-
-
 
     implicit val tsEnumRds  : Reads[TransformationTypeEnum.Value] = enumReads(TransformationTypeEnum)
     implicit val outEnumRds  : Reads[OutputTypeEnum.Value] = enumReads(OutputTypeEnum)

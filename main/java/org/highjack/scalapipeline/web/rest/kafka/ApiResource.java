@@ -7,12 +7,6 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controller for view and managing Log Level at runtime.
- *
- * PATH MUST BE LOWERCASE !!!
- */
-
 @RestController
 @RequestMapping("/api/kafka")
 public class ApiResource{
@@ -40,8 +34,6 @@ public class ApiResource{
         channel.send(MessageBuilder.withPayload(new MessageModel().setMessage(message)).build());
 
     }
-
-
     public static MessageChannel getStaticChannel() {
         return staticChannel;
     }

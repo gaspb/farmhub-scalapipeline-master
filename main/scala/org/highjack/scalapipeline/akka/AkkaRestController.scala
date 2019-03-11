@@ -1,8 +1,7 @@
 package org.highjack.scalapipeline.akka
 
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import AkkaStreamLocalContext._
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source, StreamConverters}
 import akka.util.ByteString
 import com.google.common.io.BaseEncoding
@@ -18,15 +17,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
 import scala.concurrent.Future
-@Controller //?
+
+
+@Controller
 @RestController
 @RequestMapping(Array("/api/test"))
 class AkkaRestController {
 
-        val logger : Logger= LoggerFactory.getLogger(this.getClass)
-    implicit val system = ActorSystem()
-    implicit val materializer = ActorMaterializer()
-    implicit val executionContext = system.dispatcher
+
+    val logger : Logger= LoggerFactory.getLogger(this.getClass)
+
 
     @RequestMapping(value = Array("/ppl"), method = Array(RequestMethod.POST), consumes = Array(MediaType.APPLICATION_JSON_VALUE))
     def postPipeline(@RequestBody jsonPipeline: JsonPipelineVM): ResponseEntity[Any]= {
@@ -40,24 +40,23 @@ class AkkaRestController {
 
 
     @GetMapping(path = Array("/out"),  produces = Array(MediaType.TEXT_PLAIN_VALUE))
-        @ResponseBody
-        def getOutputURL(@RequestParam pipelineId: String, @RequestParam outputName: String): String= {
-            logger.info("Received call for url /api/out, retriving from map with length " + AkkaRestServer.exposedOutputsURLMap.size + "  ")
-            val str:String = Java8Util.get(pipelineId + " // " + outputName, AkkaRestServer.exposedOutputsURLMap)
-            str
-        }
+    @ResponseBody
+    def getOutputURL(@RequestParam pipelineId: String, @RequestParam outputName: String): String= {
+        logger.info("Received call for url /api/out, retriving from map with length " + AkkaRestServer.exposedOutputsURLMap.size + "  ")
+        val str:String = Java8Util.get(pipelineId + " // " + outputName, AkkaRestServer.exposedOutputsURLMap)
+        str
+    }
 
-        @GetMapping(path = Array("/in"), produces = Array(MediaType.TEXT_PLAIN_VALUE))
-        @ResponseBody
-        def getInputURL(@RequestParam pipelineId: String, @RequestParam inputName: String): String = {
-            logger.info("Received call for url /api/out" + AkkaRestServer.exposedInputsURLMap.size + "  ")
-            val str:String = Java8Util.get(pipelineId + " // " + inputName, AkkaRestServer.exposedInputsURLMap)
-            str
-        }
+    @GetMapping(path = Array("/in"), produces = Array(MediaType.TEXT_PLAIN_VALUE))
+    @ResponseBody
+    def getInputURL(@RequestParam pipelineId: String, @RequestParam inputName: String): String = {
+        logger.info("Received call for url /api/out" + AkkaRestServer.exposedInputsURLMap.size + "  ")
+        val str:String = Java8Util.get(pipelineId + " // " + inputName, AkkaRestServer.exposedInputsURLMap)
+        str
+    }
 
 
     //return a bytebuffer with last data from the source in it
-    //retrieve json map with var d = atob(data).substring(4,a.length-2) then according to datatype (here a map) .split(', ').map(elem=>elem.split(' -> '))
     @GetMapping(path = Array("/proxy/stream_json/{url}"), produces = Array(MediaType.APPLICATION_STREAM_JSON_VALUE))
     @ResponseBody
     def proxyStreamJSON(@PathVariable("url") url: String): Flux[ByteString]  = {
@@ -65,11 +64,7 @@ class AkkaRestController {
         val key = Java8Util.getKeyFromValue(url, AkkaRestServer.exposedOutputsURLMap)
         logger.info("Retrieved key " + key )
         val source : Source[ByteString, _]= Java8Util.get[Source[ByteString, _]](key, AkkaRestServer.exposedOutputsSourceMap)
-        //get a materialized source
-
-        //   val sink = StreamConverters.asInputStream()
-        val flux : Flux[ByteString] = Flux.fromStream(source.runWith(StreamConverters.asJavaStream[ByteString]()))
-        flux
+        Flux.fromStream(source.runWith(StreamConverters.asJavaStream[ByteString]()))
     }
 
     @GetMapping(path = Array("/proxy/run/{url}"), produces = Array(MediaType.APPLICATION_STREAM_JSON_VALUE))
@@ -85,20 +80,6 @@ class AkkaRestController {
         "200"
     }
 
-
-    //TODO
-    /**
-      *
-      * On call to proxy/url
-      * retrieve the Runnable operation to
-      *
-      *
-      *
-      *
-      *
-      *
-      *
-      */
 
 
 }

@@ -22,12 +22,11 @@ import scala.util.control.NonFatal
 
 class MockMain2 {
 
+    import AkkaStreamLocalContext.system
+    import AkkaStreamLocalContext.executor
 
     val logger : Logger = LoggerFactory.getLogger(this.getClass)
-
     val restService : RestService.type = RestService
-    implicit val system = ActorSystem()
-    implicit val executionContext : ExecutionContext =system.dispatcher
 
     val decider: Supervision.Decider = {
         case _: TimeoutException => Supervision.Restart
@@ -37,7 +36,6 @@ class MockMain2 {
     }
     implicit val materializer = ActorMaterializer(ActorMaterializerSettings(system)
         .withSupervisionStrategy(decider))
-    //mock 1 : count words from delimited string
 
     val doNotParseJSON = true
 
@@ -47,25 +45,16 @@ class MockMain2 {
     }
 
     def mockPipeline(): PipelineModel = {
-
         /*
         EXAMPLE ENDPOINT ELEMENT
          */
-        // val endpointElement:EndpointElement = EndpointElement("mock_ep", 1, false, 0, EndpointTypeEnum.REST_TEXTFILE_STREAM, MockMain.DOC_SHAKESPEAR_URL, "ep0", Map.empty )
         val endpointElement:EndpointElement = EndpointElement("mock_ep",  EndpointTypeEnum.AKKA_HTTP_BYTESTRING_READ, Option(MockMain.DOC_SHERLOCK_URL), Option(8080), Option("ep0"), Option(Map.empty) )
 
-      /*  val parseJsonTransfo:TransformationElement = TransformationElement("mock_tf_str", 2, false, 1, true, TransformationTypeEnum.PARSE_JSON_OBJECT, Map.empty)
-
-        val getJsonPropertyTreansfo:TransformationElement = TransformationElement("mock_tf_str", 2, false, 1, true, TransformationTypeEnum.PARSE_JSON_OBJECT, Map.empty)
-*/
         val parseToString:TransformationElement = TransformationElement(1,"mock_parseToString", TransformationTypeEnum.BYTESTRING_TO_STRING, Map.empty)
         val countWords:TransformationElement = TransformationElement(2,"mock_countWords",  TransformationTypeEnum.WORD_OCCURENCE_COUNT, Map(("excludeCommonWords", "true")))
         val tail:TransformationElement = TransformationElement(3,"mock_countWords",  TransformationTypeEnum.STREAM_TAIL, Map.empty)
         val outputElement:OutputElement = OutputElement(4,"out1",Option("to_rest"), OutputTypeEnum.TO_DOWNLOADABLE_FILE)
-
         val trigger : TriggerElement = TriggerElement("mock_deadtrigger",  Option("some"), TriggerTypeEnum.SIMPLE_RUN )
-
-
         val branch : PipelineBranch = PipelineBranch(0,Set[PipelineElement](parseToString,  countWords,tail, outputElement), 1, 0)
         val ppl : PipelineModel = PipelineModel(Set[PipelineBranch](branch), "mock_ppl", endpointElement, trigger)
         ppl

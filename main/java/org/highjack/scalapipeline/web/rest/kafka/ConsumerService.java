@@ -20,17 +20,6 @@ public class ConsumerService {
     public ConsumerService(ConsumerChannel consumerChannel) {
         this.channel = consumerChannel.subscribableChannel();
     }
-/* activeSource = Source.queue(5, OverflowStrategy.dropHead());
-*/
-      /*  Consumer.
-        ConsumerService.consumerChannel = consumerChannel.subscribableChannel();
-        ConsumerService.consumerChannel.subscribe(new MessageHandler() {
-            @Override
-            public void handleMessage(Message<?> message) throws MessagingException {
-                log.info("Received message:  {} "+ message.getPayload());
-            }
-        });*/
-
 
     @StreamListener(ConsumerChannel.CHANNEL)
     public void consume(MessageModel message) {
@@ -42,12 +31,4 @@ public class ConsumerService {
         }
 
     }
-
-
-   /* @StreamListener(ConsumerChannel.CHANNEL)
-    public void consume(Flux<MessageModel> strings)
-    {
-        log.info("consuming kafka stream flux ");
-        ConsumerService.activeSource = Source.fromPublisher(strings);
-    }*/
 }

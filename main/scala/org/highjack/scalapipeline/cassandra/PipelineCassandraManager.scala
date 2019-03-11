@@ -1,3 +1,4 @@
+
 /*
 package org.highjack.scalapipeline.cassandra
 
@@ -35,8 +36,5 @@ class PipelineCassandraManager (userId:String, pipelineId:String, tableId:String
     def count(): Long = {
         manager.countRDD(rdd)
     }
-
-
-
 }
 */
