@@ -1,6 +1,6 @@
 package org.highjack.scalapipeline.stream
 
-import akka.stream.scaladsl.{FileIO, Flow, RunnableGraph, Sink, Source}
+import akka.stream.scaladsl.{Flow, RunnableGraph, Sink, Source}
 import org.highjack.scalapipeline.akka.AkkaRestServer
 import org.highjack.scalapipeline.akka.AkkaStreamLocalContext._
 import org.highjack.scalapipeline.pipeline.trigger.TriggerElement
