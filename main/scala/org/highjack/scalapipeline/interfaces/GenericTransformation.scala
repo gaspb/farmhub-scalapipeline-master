@@ -1,10 +1,8 @@
-package org.highjack.scalapipeline.scalaTransformation
+package org.highjack.scalapipeline.interfaces
 
 import akka.stream.scaladsl.Source
 
-
-abstract class ScalaTransformation[A,B] {
-
+abstract class GenericTransformation[A,B] {
     def run(rawData : Source[A, _], args: Option[Any]):Source[B, _]
 
 }
